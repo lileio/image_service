@@ -1,0 +1,37 @@
+syntax = "proto3";
+package image_service;
+
+message ImageStoreRequest {
+  string filename = 1;
+  bytes data = 2;
+  repeated ImageOperation ops = 3;
+}
+
+message Image {
+  string version_name = 1;
+  string filename = 2;
+  string url = 3;
+}
+
+message ImageOperation {
+  string version_name = 1;
+  int32 height = 2;
+  int32 width = 3;
+  int32 quality = 4;
+  int32 compression = 5;
+  bool crop = 6;
+  bool enlarge = 7;
+  bool flip = 8;
+  bool interlace = 9;
+  Format format = 10;
+}
+
+enum Format {
+  JPEG = 0;
+  WEBP = 1;
+  PNG = 2;
+}
+
+service ImageService {
+  rpc Store(ImageStoreRequest) returns (stream Image) {}
+}
