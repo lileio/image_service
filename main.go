@@ -24,7 +24,7 @@ func main() {
 		store = s
 	}
 
-	workers.StartWorkerPool(10, store)
+	workers.StartWorkerPool(5, store)
 	s := &server.Server{}
 
 	impl := func(g *grpc.Server) {
