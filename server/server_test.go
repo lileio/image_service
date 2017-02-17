@@ -31,7 +31,7 @@ func init() {
 		panic(err)
 	}
 
-	workers.StartWorkerPool(1, cs)
+	workers.StartWorkerPool(5, cs)
 
 	var s = Server{}
 	impl := func(g *grpc.Server) {
@@ -91,4 +91,14 @@ func TestStore(t *testing.T) {
 	}
 
 	assert.Equal(t, len(req.Ops)+1, len(images))
+
+	for _, img := range images {
+		_, err := client.Delete(ctx, &image_service.DeleteRequest{
+			Filename: img.Filename,
+		})
+
+		if err != nil {
+			assert.Fail(t, err.Error())
+		}
+	}
 }

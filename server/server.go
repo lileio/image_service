@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"github.com/pkg/errors"
 
 	"github.com/lileio/image_service/image_service"
@@ -68,6 +70,26 @@ func (s Server) Store(
 	}
 
 	return nil
+}
+
+func (s Server) Delete(ctx context.Context, req *image_service.DeleteRequest) (*image_service.DeleteResponse, error) {
+	images := make(chan image_service.Image)
+	errch := make(chan error)
+
+	workers.Queue <- workers.ImageJob{
+		Filename:     req.Filename,
+		ResponseChan: images,
+		ErrChan:      errch,
+		Ctx:          ctx,
+		Delete:       true,
+	}
+
+	select {
+	case img := <-images:
+		return &image_service.DeleteResponse{Filename: img.Filename}, nil
+	case err := <-errch:
+		return nil, err
+	}
 }
 
 // filenameWithOpts creates a unique filename for given an a unique id,

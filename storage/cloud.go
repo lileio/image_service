@@ -41,3 +41,15 @@ func (s *CloudStorage) Store(ctx context.Context, data []byte, filename string) 
 		URL:      obj.Url,
 	}, nil
 }
+
+func (s *CloudStorage) Delete(ctx context.Context, filename string) error {
+	_, err := s.client.Delete(ctx, &cloud_storage_service.DeleteRequest{
+		Filename: filename,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

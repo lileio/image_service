@@ -17,12 +17,18 @@ var (
 )
 
 type ImageJob struct {
-	Filename     string
-	Data         []byte
-	Op           *image_service.ImageOperation
 	ResponseChan chan image_service.Image
 	ErrChan      chan error
 	Ctx          context.Context
+
+	Filename string
+
+	// If doing a resize
+	Data []byte
+	Op   *image_service.ImageOperation
+
+	// If doing a delete
+	Delete bool
 }
 
 func StartWorkerPool(workerCount int, s storage.Storage) {
@@ -41,6 +47,17 @@ func StartWorkerPool(workerCount int, s storage.Storage) {
 func worker(id int, jobs <-chan ImageJob) {
 	for j := range jobs {
 		log.Debugf("Starting job on worker: %d", id)
+
+		if j.Delete {
+			err := store.Delete(j.Ctx, j.Filename)
+			if err != nil {
+				j.ErrChan <- errors.Wrap(err, "delete failed")
+				return
+			}
+
+			j.ResponseChan <- image_service.Image{Filename: j.Filename}
+			return
+		}
 
 		if j.Op != nil {
 			data, err := images.Process(j.Data, j.Op)

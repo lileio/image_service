@@ -32,6 +32,15 @@ enum Format {
   PNG = 2;
 }
 
+message DeleteRequest {
+  string filename = 1;
+}
+
+message DeleteResponse {
+  string filename = 1;
+}
+
 service ImageService {
   rpc Store(ImageStoreRequest) returns (stream Image) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
 }

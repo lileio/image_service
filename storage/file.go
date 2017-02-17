@@ -48,3 +48,8 @@ func (s *FileStorage) Store(ctx context.Context, data []byte, filename string) (
 		URL:      url,
 	}, nil
 }
+
+func (s *FileStorage) Delete(ctx context.Context, filename string) error {
+	p := filepath.Join(s.root, filename)
+	return os.Remove(p)
+}

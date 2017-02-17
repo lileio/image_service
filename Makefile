@@ -8,7 +8,7 @@ proto:
 
 ci:
 	go get -v -t ./...
-	FILE_LOCATION=../test make test
+	FILE_LOCATION=../test/out make test
 	GOOS=linux GOARCH=amd64 go build -a -o image_server .
 
 test:
