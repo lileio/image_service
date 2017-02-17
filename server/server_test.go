@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/lileio/image_service/image_service"
@@ -25,33 +26,35 @@ func init() {
 		panic("FILE_LOCATION must be set")
 	}
 
-	go func() {
-		cs, err := storage.NewFileStorage(os.Getenv("FILE_LOCATION"))
-		if err != nil {
-			panic(err)
-		}
+	cs, err := storage.NewFileStorage(os.Getenv("FILE_LOCATION"))
+	if err != nil {
+		panic(err)
+	}
 
-		workers.StartWorkerPool(1, cs)
+	workers.StartWorkerPool(1, cs)
 
-		var s = Server{}
-		impl := func(g *grpc.Server) {
-			image_service.RegisterImageServiceServer(g, s)
-		}
+	var s = Server{}
+	impl := func(g *grpc.Server) {
+		image_service.RegisterImageServiceServer(g, s)
+	}
 
-		serv := lile.NewServer(
-			lile.Port(":9999"),
-			lile.Implementation(impl),
-		)
+	serv := lile.NewServer(
+		lile.Port(":9999"),
+		lile.Implementation(impl),
+	)
 
-		err = serv.ListenAndServe()
-		log.Fatal(err)
-	}()
+	go serv.ListenAndServe()
+	conn := dialWithRetry()
+	client = image_service.NewImageServiceClient(conn)
+}
 
+func dialWithRetry() *grpc.ClientConn {
 	conn, err := grpc.Dial("localhost:9999", grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("fail to dial: %v", err)
+		log.Infof("failed to dial: %v. Retrying..", err)
+		time.Sleep(1)
 	}
-	client = image_service.NewImageServiceClient(conn)
+	return conn
 }
 
 func TestStore(t *testing.T) {

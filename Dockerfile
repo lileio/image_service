@@ -1,5 +1,4 @@
-FROM alpine:latest
+FROM marcbachmann/libvips
 
-RUN apk add --no-cache ca-certificates
-ADD image_service /
-CMD ["/image_service"]
+ADD image_server /
+CMD ["/image_server"]

@@ -3,16 +3,9 @@ sudo: required
 services:
   - docker
 
-go:
-  - 1.7
-
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y libvips-dev
-
 script:
-  - go get -t ./...
-  - FILE_LOCATION="./test" make test
+  - docker run --rm -v "$PWD":/go/src/github.com/lileio/image_service -w /go/src/github.com/lileio/image_service lileio/go1.8-vips make ci
+  - make docker
 
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
