@@ -8,6 +8,6 @@ services:
       - GOOGLE_STORAGE_LOCATION=eu
       - GOOGLE_APPLICATION_CREDENTIALS=/creds/google.json
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./data/creds:/creds

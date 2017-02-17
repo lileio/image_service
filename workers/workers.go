@@ -55,6 +55,7 @@ func worker(id int, jobs <-chan ImageJob) {
 		obj, err := store.Store(j.Ctx, j.Data, j.Filename)
 		if err != nil {
 			j.ErrChan <- errors.Wrap(err, "storage failed")
+			return
 		}
 
 		j.ResponseChan <- image_service.Image{Filename: obj.Filename, Url: obj.URL}

@@ -25,26 +25,28 @@ func (s Server) Store(
 
 	id := uuid.NewV1().String()
 
-	// Upload the original image
-	workers.Queue <- workers.ImageJob{
-		Filename:     id + "-" + req.Filename,
-		Data:         req.Data,
-		ResponseChan: images,
-		ErrChan:      errch,
-		Ctx:          stream.Context(),
-	}
-
-	// And then the derivatives
-	for _, op := range req.Ops {
+	go func() {
+		// Upload the original image
 		workers.Queue <- workers.ImageJob{
-			Filename:     filenameWithOpts(id, op),
+			Filename:     id + "-" + req.Filename,
 			Data:         req.Data,
-			Op:           op,
 			ResponseChan: images,
 			ErrChan:      errch,
 			Ctx:          stream.Context(),
 		}
-	}
+
+		// And then the derivatives
+		for _, op := range req.Ops {
+			workers.Queue <- workers.ImageJob{
+				Filename:     filenameWithOpts(id, op),
+				Data:         req.Data,
+				Op:           op,
+				ResponseChan: images,
+				ErrChan:      errch,
+				Ctx:          stream.Context(),
+			}
+		}
+	}()
 
 	errs := []error{}
 	for i := 0; i < expectedImages; i++ {

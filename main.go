@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 
 	"google.golang.org/grpc"
 
@@ -14,24 +15,28 @@ import (
 )
 
 func main() {
-	var store storage.Storage
-	if os.Getenv("CLOUD_STORAGE_ADDR") != "" {
-		s, err := storage.NewCloudStorage("localhost:8000")
+	store := storageFromEnv()
+
+	if os.Getenv("DEBUG") == "true" {
+		log.SetLevel(log.DebugLevel)
+	}
+
+	poolSize := 5
+	if os.Getenv("WORKER_POOL_SIZE") != "" {
+		i, err := strconv.Atoi(os.Getenv("WORKER_POOL_SIZE"))
 		if err != nil {
 			panic(err)
 		}
 
-		store = s
+		poolSize = i
 	}
 
-	workers.StartWorkerPool(5, store)
-	s := &server.Server{}
+	workers.StartWorkerPool(poolSize, store)
 
+	s := &server.Server{}
 	impl := func(g *grpc.Server) {
 		image_service.RegisterImageServiceServer(g, s)
 	}
-
-	workers.StartWorkerPool(5, nil)
 
 	err := lile.NewServer(
 		lile.Name("image_service"),
@@ -39,4 +44,27 @@ func main() {
 	).ListenAndServe()
 
 	log.Fatal(err)
+}
+
+func storageFromEnv() storage.Storage {
+	var store storage.Storage
+	if os.Getenv("CLOUD_STORAGE_ADDR") != "" {
+		s, err := storage.NewCloudStorage(os.Getenv("CLOUD_STORAGE_ADDR"))
+		if err != nil {
+			panic(err)
+		}
+
+		store = s
+	}
+
+	if os.Getenv("FILE_LOCATION") != "" {
+		s, err := storage.NewFileStorage(os.Getenv("FILE_LOCATION"))
+		if err != nil {
+			panic(err)
+		}
+
+		store = s
+	}
+
+	return store
 }
