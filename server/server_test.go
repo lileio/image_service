@@ -66,7 +66,12 @@ func TestStore(t *testing.T) {
 		Filename: "pic.jpg",
 		Data:     b,
 		Ops: []*image_service.ImageOperation{
-			&image_service.ImageOperation{Crop: true, Width: 100, Height: 200, VersionName: "1"},
+			&image_service.ImageOperation{
+				Crop:        true,
+				Width:       100,
+				Height:      200,
+				VersionName: "1",
+			},
 			&image_service.ImageOperation{Crop: true, Width: 200, Height: 300, VersionName: "2"},
 			&image_service.ImageOperation{Crop: true, Width: 300, Height: 400, VersionName: "3"},
 		},
