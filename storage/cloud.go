@@ -20,7 +20,7 @@ func NewCloudStorage(addr string) *CloudStorage {
 }
 
 func (cs *CloudStorage) connect() error {
-	if client != nil {
+	if cs.client != nil {
 		return nil
 	}
 
