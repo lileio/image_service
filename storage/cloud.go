@@ -20,6 +20,10 @@ func NewCloudStorage(addr string) *CloudStorage {
 }
 
 func (cs *CloudStorage) connect() error {
+	if client != nil {
+		return nil
+	}
+
 	conn, err := grpc.Dial(cs.addr, grpc.WithInsecure())
 	if err != nil {
 		return err
