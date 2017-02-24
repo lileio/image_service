@@ -11,22 +11,30 @@ import (
 type CloudStorage struct {
 	Storage
 
+	addr   string
 	client cloud_storage_service.CloudStorageServiceClient
 }
 
-func NewCloudStorage(addr string) (*CloudStorage, error) {
-	cs := &CloudStorage{}
+func NewCloudStorage(addr string) *CloudStorage {
+	return &CloudStorage{addr: addr}
+}
 
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+func (cs *CloudStorage) connect() error {
+	conn, err := grpc.Dial(cs.addr, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+
+	cs.client = cloud_storage_service.NewCloudStorageServiceClient(conn)
+	return nil
+}
+
+func (s *CloudStorage) Store(ctx context.Context, data []byte, filename string) (*StorageObject, error) {
+	err := s.connect()
 	if err != nil {
 		return nil, err
 	}
 
-	cs.client = cloud_storage_service.NewCloudStorageServiceClient(conn)
-	return cs, nil
-}
-
-func (s *CloudStorage) Store(ctx context.Context, data []byte, filename string) (*StorageObject, error) {
 	obj, err := s.client.Store(ctx, &cloud_storage_service.StoreRequest{
 		Filename: filename,
 		Data:     data,
@@ -43,7 +51,12 @@ func (s *CloudStorage) Store(ctx context.Context, data []byte, filename string) 
 }
 
 func (s *CloudStorage) Delete(ctx context.Context, filename string) error {
-	_, err := s.client.Delete(ctx, &cloud_storage_service.DeleteRequest{
+	err := s.connect()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.client.Delete(ctx, &cloud_storage_service.DeleteRequest{
 		Filename: filename,
 	})
 

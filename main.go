@@ -49,12 +49,7 @@ func main() {
 func storageFromEnv() storage.Storage {
 	var store storage.Storage
 	if os.Getenv("CLOUD_STORAGE_ADDR") != "" {
-		s, err := storage.NewCloudStorage(os.Getenv("CLOUD_STORAGE_ADDR"))
-		if err != nil {
-			panic(err)
-		}
-
-		store = s
+		store = storage.NewCloudStorage(os.Getenv("CLOUD_STORAGE_ADDR"))
 	}
 
 	if os.Getenv("FILE_LOCATION") != "" {
