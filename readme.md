@@ -7,11 +7,14 @@ Processing is done by a set of 'workers' to limit concurrency and overloading.
 
 By default 5 workers are run, meaning only 5 image resizing or uploading operations happen concurrently. New operations are queued and streamed back to the client when completed.
 
+A "sync" method is there for convenience, it's worth nothing that this method still uploads and processes concurrently but returns all the images at once when they're all complete.
+
 Image processing uses [bimg](https://github.com/h2non/bimg) which is backed by [libvips](http://www.vips.ecs.soton.ac.uk/index.php?title=Libvips).
 
 ``` protobuf
 service ImageService {
   rpc Store(ImageStoreRequest) returns (stream Image) {}
+  rpc StoreSync(ImageStoreRequest) returns (ImageSyncResponse) {}
   rpc Delete(DeleteRequest) returns (DeleteResponse) {}
 }
 ```
@@ -46,7 +49,7 @@ CLOUD_STORAGE_ADDR=10.0.0.1:8000
 
 ### File Storage
 
-File system storage is also available, note that you will be responsible for hosting/serving the images and full URL generation.
+File system storage is also available, note that you will be responsible for hosting/serving behind something like nginx or a CDN.
 
 ```
 FILE_LOCATION=/path/to/webserver
