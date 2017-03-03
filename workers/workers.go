@@ -75,8 +75,19 @@ func worker(id int, jobs <-chan ImageJob) {
 			continue
 		}
 
-		j.ResponseChan <- image_service.Image{Filename: obj.Filename, Url: obj.URL}
+		j.ResponseChan <- image_service.Image{
+			Filename:    obj.Filename,
+			Url:         obj.URL,
+			VersionName: versionName(j),
+		}
 
 		log.Debugf("Finished job on worker: %d", id)
 	}
+}
+
+func versionName(i ImageJob) string {
+	if i.Op != nil {
+		return i.Op.VersionName
+	}
+	return "original"
 }

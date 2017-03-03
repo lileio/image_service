@@ -65,16 +65,7 @@ func TestStore(t *testing.T) {
 	req := &image_service.ImageStoreRequest{
 		Filename: "pic.jpg",
 		Data:     b,
-		Ops: []*image_service.ImageOperation{
-			&image_service.ImageOperation{
-				Crop:        true,
-				Width:       100,
-				Height:      200,
-				VersionName: "1",
-			},
-			&image_service.ImageOperation{Crop: true, Width: 200, Height: 300, VersionName: "2"},
-			&image_service.ImageOperation{Crop: true, Width: 300, Height: 400, VersionName: "3"},
-		},
+		Ops:      image_service.DefaultOps,
 	}
 
 	stream, err := client.Store(ctx, req)
@@ -116,16 +107,7 @@ func TestStoreSync(t *testing.T) {
 	req := &image_service.ImageStoreRequest{
 		Filename: "pic.jpg",
 		Data:     b,
-		Ops: []*image_service.ImageOperation{
-			&image_service.ImageOperation{
-				Crop:        true,
-				Width:       100,
-				Height:      200,
-				VersionName: "1",
-			},
-			&image_service.ImageOperation{Crop: true, Width: 200, Height: 300, VersionName: "2"},
-			&image_service.ImageOperation{Crop: true, Width: 300, Height: 400, VersionName: "3"},
-		},
+		Ops:      image_service.DefaultOps,
 	}
 
 	res, err := client.StoreSync(ctx, req)
