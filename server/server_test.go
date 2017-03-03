@@ -31,7 +31,7 @@ func init() {
 		panic(err)
 	}
 
-	workers.StartWorkerPool(5, cs)
+	workers.StartWorkerPool(1, cs)
 
 	var s = Server{}
 	impl := func(g *grpc.Server) {
@@ -95,6 +95,43 @@ func TestStore(t *testing.T) {
 		images = append(images, img)
 	}
 
+	assert.Equal(t, len(req.Ops)+1, len(images))
+
+	for _, img := range images {
+		_, err := client.Delete(ctx, &image_service.DeleteRequest{
+			Filename: img.Filename,
+		})
+
+		if err != nil {
+			assert.Fail(t, err.Error())
+		}
+	}
+}
+
+func TestStoreSync(t *testing.T) {
+	b, err := ioutil.ReadFile("../test/pic.jpg")
+	assert.Nil(t, err)
+
+	ctx := context.Background()
+	req := &image_service.ImageStoreRequest{
+		Filename: "pic.jpg",
+		Data:     b,
+		Ops: []*image_service.ImageOperation{
+			&image_service.ImageOperation{
+				Crop:        true,
+				Width:       100,
+				Height:      200,
+				VersionName: "1",
+			},
+			&image_service.ImageOperation{Crop: true, Width: 200, Height: 300, VersionName: "2"},
+			&image_service.ImageOperation{Crop: true, Width: 300, Height: 400, VersionName: "3"},
+		},
+	}
+
+	res, err := client.StoreSync(ctx, req)
+	assert.Nil(t, err)
+
+	images := res.Images
 	assert.Equal(t, len(req.Ops)+1, len(images))
 
 	for _, img := range images {

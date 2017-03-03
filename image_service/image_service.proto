@@ -1,12 +1,6 @@
 syntax = "proto3";
 package image_service;
 
-message ImageStoreRequest {
-  string filename = 1;
-  bytes data = 2;
-  repeated ImageOperation ops = 3;
-}
-
 message Image {
   string version_name = 1;
   string filename = 2;
@@ -32,6 +26,16 @@ enum Format {
   PNG = 2;
 }
 
+message ImageStoreRequest {
+  string filename = 1;
+  bytes data = 2;
+  repeated ImageOperation ops = 3;
+}
+
+message ImageSyncResponse {
+  repeated Image images = 1;
+}
+
 message DeleteRequest {
   string filename = 1;
 }
@@ -42,5 +46,6 @@ message DeleteResponse {
 
 service ImageService {
   rpc Store(ImageStoreRequest) returns (stream Image) {}
+  rpc StoreSync(ImageStoreRequest) returns (ImageSyncResponse) {}
   rpc Delete(DeleteRequest) returns (DeleteResponse) {}
 }

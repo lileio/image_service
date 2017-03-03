@@ -52,18 +52,18 @@ func worker(id int, jobs <-chan ImageJob) {
 			err := store.Delete(j.Ctx, j.Filename)
 			if err != nil {
 				j.ErrChan <- errors.Wrap(err, "delete failed")
-				return
+				continue
 			}
 
 			j.ResponseChan <- image_service.Image{Filename: j.Filename}
-			return
+			continue
 		}
 
 		if j.Op != nil {
 			data, err := images.Process(j.Data, j.Op)
 			if err != nil {
 				j.ErrChan <- err
-				return
+				continue
 			}
 
 			j.Data = data
@@ -72,9 +72,11 @@ func worker(id int, jobs <-chan ImageJob) {
 		obj, err := store.Store(j.Ctx, j.Data, j.Filename)
 		if err != nil {
 			j.ErrChan <- errors.Wrap(err, "storage failed")
-			return
+			continue
 		}
 
 		j.ResponseChan <- image_service.Image{Filename: obj.Filename, Url: obj.URL}
+
+		log.Debugf("Finished job on worker: %d", id)
 	}
 }
