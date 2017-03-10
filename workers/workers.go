@@ -56,6 +56,8 @@ func worker(id int, jobs <-chan ImageJob) {
 				"image_worker: "+versionName(j),
 				opentracing.ChildOf(span.Context()),
 			)
+
+			j.Ctx = opentracing.ContextWithSpan(j.Ctx, wspan)
 		}
 
 		i, err := process(j)
