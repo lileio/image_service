@@ -6,7 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 
-	"github.com/lileio/image_service/image_service"
+	"github.com/lileio/image_service"
 	"github.com/lileio/image_service/images"
 	"github.com/lileio/image_service/storage"
 )

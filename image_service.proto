@@ -1,4 +1,5 @@
 syntax = "proto3";
+option go_package = "github.com/lileio/image_service";
 package image_service;
 
 message Image {

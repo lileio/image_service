@@ -2,7 +2,7 @@ package images
 
 import (
 	"github.com/h2non/bimg"
-	"github.com/lileio/image_service/image_service"
+	"github.com/lileio/image_service"
 	"github.com/pkg/errors"
 )
 

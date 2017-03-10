@@ -1,4 +1,4 @@
 FROM marcbachmann/libvips
 
-ADD image_server /
-CMD ["/image_server"]
+ADD build/image_server /bin
+CMD ["image_server", "server"]

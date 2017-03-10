@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/lileio/image_service/image_service"
+	"github.com/lileio/image_service"
 	"github.com/lileio/image_service/workers"
 	uuid "github.com/satori/go.uuid"
 )

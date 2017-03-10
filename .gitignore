@@ -1,2 +1,3 @@
+build/
 data/
-image_server
+.DS_Store
