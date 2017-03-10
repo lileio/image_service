@@ -4,6 +4,7 @@ import (
 	"context"
 
 	log "github.com/Sirupsen/logrus"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 
 	"github.com/lileio/image_service"
@@ -48,41 +49,61 @@ func worker(id int, jobs <-chan ImageJob) {
 	for j := range jobs {
 		log.Debugf("Starting job on worker: %d", id)
 
-		if j.Delete {
-			err := store.Delete(j.Ctx, j.Filename)
-			if err != nil {
-				j.ErrChan <- errors.Wrap(err, "delete failed")
-				continue
-			}
-
-			j.ResponseChan <- image_service.Image{Filename: j.Filename}
-			continue
+		span := opentracing.SpanFromContext(j.Ctx)
+		var wspan opentracing.Span
+		if span != nil {
+			wspan = opentracing.StartSpan(
+				"image_worker: "+versionName(j),
+				opentracing.ChildOf(span.Context()),
+			)
 		}
 
-		if j.Op != nil {
-			data, err := images.Process(j.Data, j.Op)
-			if err != nil {
-				j.ErrChan <- err
-				continue
-			}
-
-			j.Data = data
-		}
-
-		obj, err := store.Store(j.Ctx, j.Data, j.Filename)
+		i, err := process(j)
 		if err != nil {
-			j.ErrChan <- errors.Wrap(err, "storage failed")
+			j.ErrChan <- err
 			continue
 		}
 
-		j.ResponseChan <- image_service.Image{
-			Filename:    obj.Filename,
-			Url:         obj.URL,
-			VersionName: versionName(j),
-		}
+		j.ResponseChan <- *i
 
+		if span != nil {
+			wspan.Finish()
+		}
 		log.Debugf("Finished job on worker: %d", id)
 	}
+}
+
+func process(j ImageJob) (*image_service.Image, error) {
+	if j.Delete {
+		err := store.Delete(j.Ctx, j.Filename)
+		if err != nil {
+			return nil, errors.Wrap(err, "delete failed")
+		}
+
+		return &image_service.Image{
+			Filename: j.Filename,
+		}, nil
+	}
+
+	if j.Op != nil {
+		data, err := images.Process(j.Data, j.Op)
+		if err != nil {
+			return nil, errors.Wrap(err, "processing failed")
+		}
+
+		j.Data = data
+	}
+
+	obj, err := store.Store(j.Ctx, j.Data, j.Filename)
+	if err != nil {
+		return nil, errors.Wrap(err, "storage failed")
+	}
+
+	return &image_service.Image{
+		Filename:    obj.Filename,
+		Url:         obj.URL,
+		VersionName: versionName(j),
+	}, nil
 }
 
 func versionName(i ImageJob) string {

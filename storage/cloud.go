@@ -2,8 +2,11 @@ package storage
 
 import (
 	"context"
+	"time"
 
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/lileio/cloud_storage_service/cloud_storage_service"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
@@ -24,7 +27,14 @@ func (cs *CloudStorage) connect() error {
 		return nil
 	}
 
-	conn, err := grpc.Dial(cs.addr, grpc.WithInsecure())
+	t := opentracing.GlobalTracer()
+
+	conn, err := grpc.Dial(
+		cs.addr,
+		grpc.WithInsecure(),
+		grpc.WithTimeout(1*time.Second),
+		grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(t)),
+	)
 	if err != nil {
 		return err
 	}

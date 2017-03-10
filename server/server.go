@@ -29,7 +29,6 @@ func (s Server) StoreSync(
 	ctx context.Context,
 	req *image_service.ImageStoreRequest,
 ) (*image_service.ImageSyncResponse, error) {
-
 	images, err := store(ctx, req, nil)
 	return &image_service.ImageSyncResponse{
 		Images: images,
