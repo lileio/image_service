@@ -9,7 +9,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/lileio/image_service/image_service"
+	"github.com/lileio/image_service"
 	"github.com/lileio/image_service/storage"
 	"github.com/lileio/image_service/workers"
 	"github.com/lileio/lile"

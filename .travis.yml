@@ -5,7 +5,6 @@ services:
 
 script:
   - docker run --rm -v "$PWD":/go/src/github.com/lileio/image_service -w /go/src/github.com/lileio/image_service lileio/go1.8-vips make ci
-  - make docker
 
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then

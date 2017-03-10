@@ -3,11 +3,9 @@ services:
   cloud_storage:
     image: lileio/cloud_storage_service
     environment:
-      - GOOGLE_STORAGE_BUCKET=lileioimgtest
-      - GOOGLE_STORAGE_PROJECT_ID=grpc-149412
+      - GOOGLE_STORAGE_BUCKET=cstesty
+      - GOOGLE_STORAGE_PROJECT_ID=alex-b-159516
       - GOOGLE_STORAGE_LOCATION=eu
       - GOOGLE_APPLICATION_CREDENTIALS=/creds/google.json
-    ports:
-      - "8001:8000"
     volumes:
       - ./data/creds:/creds
