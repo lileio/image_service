@@ -5,12 +5,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/lileio/image_service"
 	"github.com/lileio/image_service/server"
 	"github.com/lileio/image_service/storage"
 	"github.com/lileio/image_service/workers"
 	"github.com/lileio/lile"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )

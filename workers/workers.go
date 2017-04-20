@@ -3,9 +3,9 @@ package workers
 import (
 	"context"
 
-	log "github.com/Sirupsen/logrus"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/lileio/image_service"
 	"github.com/lileio/image_service/images"
